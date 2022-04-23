@@ -15,12 +15,12 @@ const {title}= req.body;
 posts[id]={
     id,title
 }
-res.send(201)
+res.status(201).send(posts[id]);
 })
 
 
 app.get('/posts',(req,res)=>{
-    res.status(posts).send(posts[id]);
+    res.send(posts)
 })
 
 
