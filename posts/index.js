@@ -1,0 +1,29 @@
+const express = require ('express');
+const bodyParser = require('body-parser')
+const {randomBytes} = require('crypto')
+
+
+const app = express();
+app.use(bodyParser.json())
+
+const posts={}
+
+app.post('/posts',(req,res)=>{
+const id= randomBytes(4).toString('hex');
+const {title}= req.body;
+
+posts[id]={
+    id,title
+}
+res.send(201)
+})
+
+
+app.get('/posts',(req,res)=>{
+    res.status(posts).send(posts[id]);
+})
+
+
+app.listen(4000,()=>{
+    console.log('Listen to Port 4000');
+})
