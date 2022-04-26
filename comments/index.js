@@ -1,7 +1,7 @@
 const express = require('express')
-const bodyParser = require ('body-parser');
+const bodyParser = require('body-parser');
 const cors = require('cors')
-const {randomBytes}= require('crypto');
+const { randomBytes } = require('crypto');
 const axios = require('axios');
 
 const app = express();
@@ -9,52 +9,52 @@ app.use(bodyParser.json());
 app.use(cors());
 
 
-const commentsByPostId={};
+const commentsByPostId = {};
 
-app.get('/posts/:id/comments',(req,res)=>{
+app.get('/posts/:id/comments', (req, res) => {
     console.log('rreq cominggg');
-    res.send(commentsByPostId[req.params.id]|| [])
-    
+    res.send(commentsByPostId[req.params.id] || [])
+
 })
 
-app.post('/posts/:id/comments',async(req,res)=>{
-    const commentId= randomBytes(4).toString('hex');
-    const {content} = req.body;
+app.post('/posts/:id/comments', async (req, res) => {
+    const commentId = randomBytes(4).toString('hex');
+    const { content } = req.body;
 
-    const comments= commentsByPostId[req.params.id] || []
-    comments.push({id:commentId,content,status:"pending"});
+    const comments = commentsByPostId[req.params.id] || []
+    comments.push({ id: commentId, content, status: "pending" });
 
     commentsByPostId[req.params.id] = comments;
 
-   await axios.post('http://localhost:4005/events',{
-        type:'CommentCreated',
-        data:{
-         id:commentId,
-         content,
-         postId:req.params.id,
-         status:"pending"
+    await axios.post('http://localhost:4005/events', {
+        type: 'CommentCreated',
+        data: {
+            id: commentId,
+            content,
+            postId: req.params.id,
+            status: "pending"
         }
-    
+
     })
- 
+
     res.status(201).send(comments)
 })
 
-app.post('/events',async(req,res)=>{
-    console.log("event ethiyach",req.body.type);
-    const{type,data}=req.body;
-    if(type==="CommentModerated"){
-        const {id,postId,content,status} =data;
-        const comments=commentsByPostId[postId];
-        const comment = comments.find(comment=>{
-            return comment.id== id
+app.post('/events', async (req, res) => {
+    console.log("event ethiyach", req.body.type);
+    const { type, data } = req.body;
+    if (type === "CommentModerated") {
+        const { id, postId, content, status } = data;
+        const comments = commentsByPostId[postId];
+        const comment = comments.find(comment => {
+            return comment.id == id
         })
 
-        comment.status=status
+        comment.status = status
 
-        await axios.post('http://localhost:4005/events',{
-            type:"CommentUpdated",
-            data:{
+        await axios.post('http://localhost:4005/events', {
+            type: "CommentUpdated",
+            data: {
                 id,
                 postId,
                 status,
@@ -66,6 +66,6 @@ app.post('/events',async(req,res)=>{
 })
 
 
-app.listen(4001,()=>{
+app.listen(4001, () => {
     console.log('Listen to Port 4001');
 })
